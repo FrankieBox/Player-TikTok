@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mesa de Controlo - Estúdio TV</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 15px;
+        }
+
+        header h1 {
+            color: #00ffcc;
+            font-size: 24px;
+        }
+
+        header p {
+            font-size: 14px;
+            color: #888;
+        }
+
+        /* Layout em Grelha para a Mesa de Controlo */
+        .control-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        @media (min-width: 768px) {
+            .control-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .card {
+            background: #1e1e1e;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .card h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #fff;
+            border-left: 4px solid #00ffcc;
+            padding-left: 10px;
+        }
+
+        /* Formulários e Inputs */
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            margin-bottom: 5px;
+            color: #aaa;
+        }
+
+        input[type="text"], select {
+            width: 100%;
+            padding: 10px;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            color: #fff;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #00ffcc;
+            color: #000;
+            border: none;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 5px;
+        }
+
+        button:hover {
+            background: #00cc99;
+        }
+
+        /* Listas (Biblioteca e Fila) */
+        .item-list {
+            list-style: none;
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1px solid #333;
+            border-radius: 4px;
+            background: #181818;
+            padding: 5px;
+        }
+
+        .item-list li {
+            padding: 8px;
+            border-bottom: 1px solid #2a2a2a;
+            font-size: 13px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .item-list li:last-child {
+            border-bottom: none;
+        }
+
+        /* Botões de Ação Rápida */
+        .quick-actions {
+            grid-column: 1 / -1;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .btn-secondary {
+            background: #333;
+            color: #fff;
+        }
+        .btn-secondary:hover {
+            background: #444;
+        }
+
+        .btn-next {
+            background: #ff0055;
+            color: #fff;
+            margin-top: 10px;
+        }
+        .btn-next:hover {
+            background: #e6004c;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🎛️ Mesa de Controlo (Master Control)</h1>
+        <p>Painel de Gestão e Transmissão de Shorts - Estúdio TV</p>
+    </header>
+
+    <div class="control-grid">
+
+        <!-- Bloco 1: Cadastro de Vídeos -->
+        <div class="card">
+            <h2>1. Registar Short</h2>
+            <div class="form-group">
+                <label>Título do Conteúdo:</label>
+                <input type="text" id="video-title" placeholder="Ex: Short Exemplo 01">
+            </div>
+            <div class="form-group">
+                <label>ID ou Link do YouTube Shorts:</label>
+                <input type="text" id="video-id" placeholder="Ex: dQw4w9WgXcQ">
+            </div>
+            <button onclick="adicionarVideo()">Adicionar à Biblioteca</button>
+        </div>
+
+        <!-- Bloco 2: Biblioteca de Vídeos Cadastrados -->
+        <div class="card">
+            <h2>2. Biblioteca de Shorts</h2>
+            <ul class="item-list" id="library-list">
+                <!-- Preenchido via JavaScript -->
+            </ul>
+        </div>
+
+        <!-- Bloco 3: Grade de Programação / Fila -->
+        <div class="card">
+            <h2>3. Fila de Transmissão (Grade)</h2>
+            <ul class="item-list" id="queue-list">
+                <!-- Preenchido via JavaScript -->
+            </ul>
+            <button class="btn-next" onclick="avancarProximoFila()">▶ Enviar Próximo para a Tela</button>
+        </div>
+
+        <!-- Bloco 4: Comandos Manuais e Alertas (Balões Flutuantes) -->
+        <div class="card">
+            <h2>4. Comandos Ao Vivo</h2>
+            <div class="form-group">
+                <label>Enviar Balão Flutuante:</label>
+                <input type="text" id="balloon-text" placeholder="Ex: Atenção ao vivo em 5 segundos">
+            </div>
+            <button onclick="dispararBalao()" style="background: #ffaa00; color: #000;">Disparar Balão</button>
+        </div>
+
+        <!-- Bloco 5: Ações Gerais do Player -->
+        <div class="card quick-actions">
+            <h2>5. Controlo Geral da Tela</h2>
+            <div class="action-buttons">
+                <button class="btn-secondary" onclick="controlarPlayer('play')">▶ Reproduzir</button>
+                <button class="btn-secondary" onclick="controlarPlayer('pause')">⏸ Pausar</button>
+                <button class="btn-secondary" onclick="controlarPlayer('mute')">🔇 Silenciar</button>
+                <button class="btn-secondary" style="background: #ff4444; color: #fff;" onclick="controlarPlayer('reset')">🔄 Reiniciar Tela</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Importa o Socket.io para comunicar com o servidor no Render -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        // Liga ao servidor Node.js hospedado no Render
+        const socket = io();
+
+        // Memória local da mesa com alguns exemplos iniciais
+        let bibliotecaVideos = [
+            { id: "dQw4w9WgXcQ", titulo: "Short Exemplo 1" }
+        ];
+
+        let filaTransmissao = [];
+
+        // Elementos do HTML
+        const inputTitulo = document.getElementById('video-title');
+        const inputId = document.getElementById('video-id');
+        const listaBiblioteca = document.getElementById('library-list');
+        const listaFila = document.getElementById('queue-list');
+        const inputBalao = document.getElementById('balloon-text');
+
+        // 1. Função para Adicionar Vídeo à Biblioteca
+        function adicionarVideo() {
+            const titulo = inputTitulo.value.trim();
+            let videoId = inputId.value.trim();
+
+            if (!titulo || !videoId) {
+                alert("Por favor, preenche o título e o ID do YouTube do Short!");
+                return;
+            }
+
+            // Tratamento caso coloques o link completo do YouTube Shorts
+            if (videoId.includes("shorts/")) {
+                videoId = videoId.split("shorts/")[1].split("?")[0];
+            } else if (videoId.includes("v=")) {
+                videoId = videoId.split("v=")[1].split("&")[0];
+            }
+
+            bibliotecaVideos.push({ id: videoId, titulo: titulo });
+            
+            // Limpa os campos
+            inputTitulo.value = '';
+            inputId.value = '';
+
+            atualizarTelas();
+            alert("Short adicionado à biblioteca com sucesso!");
+        }
+
+        // 2. Função para Enviar um Short da Biblioteca para a Fila
+        function enviarParaFila(index) {
+            const videoEscolhido = bibliotecaVideos[index];
+            filaTransmissao.push(videoEscolhido);
+            atualizarTelas();
+        }
+
+        // 3. Atualiza Visualmente as Listas no Ecrã da Mesa
+        function atualizarTelas() {
+            // Atualiza Biblioteca
+            listaBiblioteca.innerHTML = '';
+            if (bibliotecaVideos.length === 0) {
+                listaBiblioteca.innerHTML = `<li style="color: #666; text-align:center;">Biblioteca vazia</li>`;
+            } else {
+                bibliotecaVideos.forEach((video, index) => {
+                    listaBiblioteca.innerHTML += `
+                        <li>
+                            <span>🎬 ${video.titulo}</span> 
+                            <button onclick="enviarParaFila(${index})" style="width: auto; padding: 4px 10px; font-size: 11px; background: #00ffcc; border:none; border-radius:3px; cursor:pointer; font-weight:bold;">+ Fila</button>
+                        </li>`;
+                });
+            }
+
+            // Atualiza Fila
+            listaFila.innerHTML = '';
+            if (filaTransmissao.length === 0) {
+                listaFila.innerHTML = `<li style="color: #666; text-align:center;">Fila de transmissão vazia</li>`;
+            } else {
+                filaTransmissao.forEach((video, index) => {
+                    listaFila.innerHTML += `<li><span>${index + 1}. ${video.titulo}</span></li>`;
+                });
+            }
+        }
+
+        // 4. Função Principal: Disparar o próximo Short para o Display (Tela)
+        function avancarProximoFila() {
+            if (filaTransmissao.length === 0) {
+                alert("A fila de transmissão está vazia! Adiciona itens da biblioteca primeiro.");
+                return;
+            }
+
+            // Retira o primeiro vídeo da fila
+            const proximoVideo = filaTransmissao.shift();
+            atualizarTelas();
+
+            // Envia o comando de troca de vídeo via Socket.io para o servidor no Render
+            socket.emit('mudar_video', { videoId: proximoVideo.id });
+            console.log("Comando enviado para o display - A tocar:", proximoVideo.titulo);
+        }
+
+        // 5. Função para Disparar Balão Flutuante
+        function dispararBalao() {
+            const texto = inputBalao.value.trim();
+            if (!texto) {
+                alert("Escreve uma mensagem para o balão!");
+                return;
+            }
+
+            // Envia o texto do balão para o servidor retransmitir ao display
+            socket.emit('enviar_balao', { mensagem: texto });
+            inputBalao.value = '';
+        }
+
+        // 6. Funções de Controlo Direto do Player
+        function controlarPlayer(comando) {
+            socket.emit('comando_player', { acao: comando });
+            console.log("Comando do player enviado:", comando);
+        }
+
+        // Inicializa as listas ao abrir a página
+        atualizarTelas();
+    </script>
+</body>
+</html>
